@@ -86,7 +86,7 @@ pipeline {
                 git add .
                 git commit -m "🔄 Update image tag to ${IMAGE_TAG}"
                 #git push origin ${branch}
-                git push --set-upstream origin ${branch}
+                git push --set-upstream origin ${BRANCH_NAME}
 
                 
                 # git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your/repo.git
