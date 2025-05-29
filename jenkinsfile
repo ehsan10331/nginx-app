@@ -84,7 +84,7 @@ pipeline {
 
           sh """
             git config user.email "ehsan10331@gmail.com"
-            git config user.name "Ehsan"
+            git config user.name "ehsan10331"
             git remote set-url origin https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/ehsan10331/nginx-app.git
             git add ${valuesPath}
             git commit -m "🔄 Update image tag to ${IMAGE_TAG}"
