@@ -62,7 +62,7 @@ pipeline {
       steps {
         script {
           sh """
-            sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|' helm/values.yaml
+            sed -i "s|tag:.*|tag: "${IMAGE_TAG}"|" helm/values.yaml
             echo "🔄 Updated helm/values.yaml with tag ${IMAGE_TAG}:"
             cat helm/values.yaml
           """
