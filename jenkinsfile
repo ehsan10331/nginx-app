@@ -61,6 +61,7 @@ pipeline {
     stage('Update Helm Values') {
       steps {
         script {
+          def valuesPath = "helm/nginx-chart/values.yaml"
           sh """
             sed -i "s|tag:.*|tag: "${IMAGE_TAG}"|" helm/values.yaml
             echo "🔄 Updated helm/values.yaml with tag ${IMAGE_TAG}:"
