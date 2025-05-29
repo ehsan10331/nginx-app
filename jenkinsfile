@@ -84,7 +84,7 @@ pipeline {
                 git config user.name "ehsan10331"
                 git remote set-url origin https://$GIT_USERNAME:$GIT_PASSWORD@github.com/$GIT_USERNAME/nginx-app.git
                 git add .
-                git commit -m "🔄 Update image tag to ${IMAGE_TAG}"
+                git commit -m "🔄 Update image tag to ${IMAGE_TAG} [skip ci]"
                 #git push origin ${branch}
                 git push --set-upstream origin ${BRANCH_NAME}
 
