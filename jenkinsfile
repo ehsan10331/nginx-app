@@ -85,7 +85,8 @@ pipeline {
                 git remote set-url origin https://$GIT_USERNAME:$GIT_PASSWORD@github.com/$GIT_USERNAME/nginx-app.git
                 git add .
                 git commit -m "🔄 Update image tag to ${IMAGE_TAG}"
-                git push origin ${branch}
+                #git push origin ${branch}
+                git push --set-upstream origin ${branch}
 
                 
                 # git clone https://$GIT_USERNAME:$GIT_PASSWORD@github.com/your/repo.git
