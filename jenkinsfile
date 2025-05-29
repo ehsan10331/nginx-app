@@ -77,7 +77,7 @@ pipeline {
       steps {
         script {
           def GITHUB_USERNAME = 'ehsan10331'
-          def GITHUB_TOKEN = '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'
+          def GITHUB_TOKEN = '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'
 
           def valuesPath = "helm/nginx-chart/values.yaml"
           def branch = "main" // Or your branch name
