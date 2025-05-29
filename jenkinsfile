@@ -63,6 +63,8 @@ pipeline {
         script {
           def valuesPath = "helm/nginx-chart/values.yaml"
           sh """
+            pwd
+            ls -l
             sed -i "s|tag:.*|tag: "${IMAGE_TAG}"|" helm/nginx-chart/values.yaml
             echo "🔄 Updated helm/nginx-chart/values.yaml with tag ${IMAGE_TAG}:"
             cat helm/nginx-chart/values.yaml
