@@ -11,6 +11,19 @@ pipeline {
   }
 
   stages {
+    stage('Check for [skip ci]') {
+            steps {
+                script {
+                    def commitMsg = sh(script: "git log -1 --pretty=%B", returnStdout: true).trim()
+                    if (commitMsg.toLowerCase().contains('[skip ci]')) {
+                        echo "Skipping build due to [skip ci] in commit message."
+                        currentBuild.result = 'SUCCESS'
+                        // Exit early
+                        return
+                    }
+                }
+            }
+        }
     stage('Checkout Code') {
       steps {
         // Cloning your public GitHub repo explicitly
