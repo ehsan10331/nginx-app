@@ -1,0 +1,94 @@
+pipeline {
+  agent any
+
+  environment {
+    AWS_REGION = 'us-east-1'
+    AWS_ACCOUNT_ID = '810931304379'  // Replace with your actual AWS Account ID
+    ECR_REPO = 'custom-nginx'
+    IMAGE_TAG = '' // Will be set dynamically
+    REPO_URL = 'https://github.com/ehsan10331/nginx-app.git'
+    BRANCH_NAME = 'main'
+  }
+
+  stages {
+    stage('Checkout Code') {
+      steps {
+        // Cloning your public GitHub repo explicitly
+        git branch: "${BRANCH_NAME}", url: "${REPO_URL}"
+      }
+    }
+
+    stage('Generate Image Tag') {
+      steps {
+        script {
+          def shortCommit = sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+          def timestamp = sh(script: "date +%Y%m%d%H%M%S", returnStdout: true).trim()
+          IMAGE_TAG = "${shortCommit}-${timestamp}"
+          env.IMAGE_TAG = IMAGE_TAG
+          env.ECR_URL = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO}"
+          echo "📝 Image tag generated: ${IMAGE_TAG}"
+        }
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        sh 'docker build -t ${ECR_REPO}:${IMAGE_TAG} .'
+      }
+    }
+
+    stage('Tag Image for ECR') {
+      steps {
+        sh 'docker tag ${ECR_REPO}:${IMAGE_TAG} ${ECR_URL}:${IMAGE_TAG}'
+      }
+    }
+
+    stage('Login to ECR') {
+      steps {
+        sh '''
+          aws ecr get-login-password --region ${AWS_REGION} | \
+          docker login --username AWS --password-stdin ${ECR_URL}
+        '''
+      }
+    }
+
+    stage('Push to ECR') {
+      steps {
+        sh 'docker push ${ECR_URL}:${IMAGE_TAG}'
+      }
+    }
+
+    stage('Update Helm Values') {
+      steps {
+        script {
+          // Assuming helm/values.yaml exists and contains "tag: ..."
+          sh '''
+            sed -i 's|tag:.*|tag: "${IMAGE_TAG}"|' helm/values.yaml
+            echo "🔄 Updated helm/values.yaml with tag ${IMAGE_TAG}:"
+            cat helm/values.yaml
+          '''
+        }
+      }
+    }
+
+    stage('Deploy to EKS using Helm') {
+      steps {
+        sh """
+          helm upgrade --install nginx-release ./helm \
+            --namespace prod \
+            --set image.repository=${ECR_URL} \
+            --set image.tag=${IMAGE_TAG}
+        """
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "✅ Deployment succeeded with tag: ${IMAGE_TAG}"
+    }
+    failure {
+      echo "❌ Deployment failed. Check logs."
+    }
+  }
+}
