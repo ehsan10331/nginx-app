@@ -73,10 +73,31 @@ pipeline {
       }
     }
 
+    stage('Commit and Push Updated Helm Values') {
+      steps {
+        script {
+          def GITHUB_USERNAME = 'ehsan10331'
+          def GITHUB_TOKEN = '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'
+
+          def valuesPath = "helm/nginx-chart/values.yaml"
+          def branch = "main" // Or your branch name
+
+          sh """
+            git config user.email "ehsan10331@gmail.com"
+            git config user.name "Ehsan"
+            git remote set-url origin https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/ehsan10331/nginx-app.git
+            git add ${valuesPath}
+            git commit -m "🔄 Update image tag to ${IMAGE_TAG}"
+            git push origin ${branch}
+          """
+        }
+      }
+    }
+
     stage('Deploy to EKS using Helm') {
       steps {
         sh """
-          helm upgrade --install nginx-release ./helm \\
+          #helm upgrade --install nginx-release ./helm \\
             --namespace prod \\
             --set image.repository=${ECR_URL} \\
             --set image.tag=${IMAGE_TAG}
