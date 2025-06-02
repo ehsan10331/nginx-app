@@ -11,38 +11,6 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
-            steps {
-                checkout([$class: 'GitSCM',
-                    branches: [[name: 'refs/heads/main']],
-                    userRemoteConfigs: [[url: 'https://github.com/ehsan10331/nginx-app.git']]
-                ])
-            }
-        }
-    stage('Check Changed Files') {
-            steps {
-                script {
-                    def changedFiles = sh(
-                        script: "git diff-tree --no-commit-id --name-only -r HEAD",
-                        returnStdout: true
-                    ).trim().split('\n')
-
-                    echo "Changed files: ${changedFiles}"
-
-                    def ignoredPaths = ['helm/nginx-chart']
-
-                    def onlyIgnoredChanged = changedFiles.every { file ->
-                        ignoredPaths.any { ignorePath -> file.startsWith(ignorePath) }
-                    }
-
-                    if (onlyIgnoredChanged) {
-                        echo "Only ignored paths changed. Skipping build."
-                        currentBuild.result = 'SUCCESS'
-                        return
-                    }
-                }
-            }
-        }
     stage('Checkout Code') {
       steps {
         // Cloning your public GitHub repo explicitly
